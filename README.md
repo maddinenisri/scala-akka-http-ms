@@ -2,5 +2,5 @@
 
 ## Build Command
 ```sh
-gradle clean build sonarqube assemble
+ gradle clean build reportScoverage sonarqube assemble
 ```
