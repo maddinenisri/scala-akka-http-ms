@@ -1,24 +1,15 @@
 package com.mdstech.sample
 
-import java.io.File
-
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.{Http, server}
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.{Http, server}
+import akka.stream.ActorMaterializer
 
 import scala.io.StdIn
 
 object Application {
   def main(args: Array[String]): Unit = {
-
-//    import com.typesafe.config.Config
-//    import com.typesafe.config.ConfigFactory
-//    val parsedConfig = ConfigFactory.parseResources(getClass.getClassLoader, "application.conf.old")
-//    println(parsedConfig.isEmpty)
-//    val config = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + "2556" + "\n" + "akka.remote.artery.canonical.port=" + "2556")
-//      .withFallback(ConfigFactory.load(parsedConfig).getConfig("Master"))
 
     implicit val system = ActorSystem("SampleActorSystem")
     implicit val materializer = ActorMaterializer()
