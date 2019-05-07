@@ -21,17 +21,19 @@ repositories {
 ext {
     scalaVersion = "2.12"
     akkaVersion = "2.5.22"
+    akkaHttpVersion = "10.1.8"
 }
 
 dependencies {
     compile "com.typesafe.akka:akka-actor_${scalaVersion}:${akkaVersion}"
     compile "com.typesafe.akka:akka-stream_${scalaVersion}:${akkaVersion}"
-    compile "com.typesafe.akka:akka-http_${scalaVersion}:10.1.8"
-    compile "com.typesafe.akka:akka-http-spray-json_${scalaVersion}:10.1.8"
+    compile "com.typesafe.akka:akka-http_${scalaVersion}:${akkaHttpVersion}"
+    compile "com.typesafe.akka:akka-http-spray-json_${scalaVersion}:${akkaHttpVersion}"
     compile "com.typesafe.akka:akka-cluster_${scalaVersion}:${akkaVersion}"
     compile "org.slf4j:slf4j-simple:1.7.25"
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile "org.scalatest:scalatest_2.12:3.0.7"
+    testCompile "org.scalatest:scalatest_${scalaVersion}:3.0.7"
+    testCompile "com.typesafe.akka:akka-http-testkit_${scalaVersion}:${akkaHttpVersion}"
 }
 
 run {
@@ -53,5 +55,26 @@ jar {
 shadowJar {
     transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
         resource = 'reference.conf'
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.sourceEncoding", "UTF-8"
+        property "sonar.sources", "src/main/scala, src/main/java"
+        property "sonar.tests", "src/test/scala, src/test/java"
+        property "sonar.scala.version", "2.12"
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.core.codeCoveragePlugin", "scoverage"
+
+        property "sonar.projectName", "scala-akka-http-ms"
+        property "sonar.host.url", "http://${rootProject.properties['sonarHostName']}:9000"
+        property "sonar.login", "${rootProject.properties['sonarWebUserName']}"
+        property "sonar.password", "${rootProject.properties['sonarWebPassword']}"
+
+        property "sonar.jacoco.reportPath", "build/jacoco/test.exec"
+        property "sonar.junit.reportPaths", "build/test-results/test"
+        property "sonar.scala.coverage.reportPaths", "build/reports/scoverage/scoverage.xml"
+        property "sonar.scala.scapegoat.reportPath", "build/reports/scapegoat/scapegoat.xml"
     }
 }
