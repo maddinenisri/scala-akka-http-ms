@@ -1,57 +1,28 @@
 package com.mdstech.sample
 
 import akka.actor.ActorSystem
+import akka.event.Logging
+import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.{Http, server}
 import akka.stream.ActorMaterializer
+import com.typesafe.config.ConfigFactory
 
-import scala.io.StdIn
+object Application extends App {
 
-object Application {
-  def main(args: Array[String]): Unit = {
+  implicit val system = ActorSystem()
+  implicit val executor = system.dispatcher
+  implicit val materializer = ActorMaterializer()
 
-    implicit val system = ActorSystem("SampleActorSystem")
-    implicit val materializer = ActorMaterializer()
-    implicit val executionContext = system.dispatcher
+  val config = ConfigFactory.load()
+  val logger = Logging(system, getClass)
 
-    def innerRoute(id: Int): server.Route =
-      get {
-        complete {
-          "Received GET request for order " + id
-        }
-      } ~
-        put {
-          complete {
-            "Received PUT request for order " + id
-          }
-        }
-
-
-    val route =
-      get {
-        pathSingleSlash {
-          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`,"<html><body>Hello world!</body></html>"))
-        } ~
-          path("ping") {
-            complete("PONG!")
-          } ~
-          path("crash") {
-            sys.error("BOOM!")
-          } ~
-          path( "test") {
-            complete("done")
-          } ~
-          path("order" / IntNumber) {
-            id => innerRoute(id)
-          }
+  val routes =
+    get {
+      pathSingleSlash {
+        complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<html><body>Hello world!</body></html>"))
       }
+    }
 
-    val bindingFuture = Http().bindAndHandle(route, "localhost", 8080)
-    println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
-    StdIn.readLine() // let it run until user presses return
-    bindingFuture
-      .flatMap(_.unbind()) // trigger unbinding from the port
-      .onComplete(_ ⇒ system.terminate()) // and shutdown when done
-  }
+  Http().bindAndHandle(routes, config.getString("akka.http.server.host"), config.getInt("akka.http.server.port"))
 }
